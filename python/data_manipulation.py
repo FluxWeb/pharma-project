@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 
 
-moses_data_path = "./data/moses/dataset_v1.csv"
-moses_data_train_path = "./data/moses/train.csv"
-moses_data_test_path = "./data/moses/test.csv"
+moses_data_path = "../data/moses/dataset_v1.csv"
+moses_data_train_path = "../data/moses/train.csv"
+moses_data_test_path = "../data/moses/test.csv"
 
 
 def load_data(file_path):    
@@ -90,3 +90,5 @@ if __name__ == "__main__":
     print("Type moses: ", moses.dtypes)
     
     print(moses["SMILES"][0])
+
+    print("max SMILES length: ", moses['SMILES'].apply(len).max())

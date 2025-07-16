@@ -51,6 +51,17 @@ pour recuperer les donnees directement dans pip dans le requirements.txt il faut
 MOSES : https://github.com/molecularsets/moses
 
 
+## Deep Learning Model for generation
+
+VAE
+Normalizing Flows
+GAN
+Diffusion Model
+
+## embedding des smiles
+
+representation numerique fait intuitivement en listant tout les carateres il doit exister de meilleur representation a chercher
+
 # TO DO::
 
 
@@ -59,3 +70,11 @@ mieux rediger read me
 implementer plusieurs modele generatif
 faire benchmark performance
 interface
+rechercher meilleur embedding
+
+regarder RDKit pour validite des molecules
+RDKit potentiel tokenizer
+
+# Laisser de coté 
+
+Méthode combinatoire y revenir plus tard
