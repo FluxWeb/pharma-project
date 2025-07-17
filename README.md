@@ -64,6 +64,8 @@ representation numerique fait intuitivement en listant tout les carateres il doi
 
 # TO DO::
 
+priorite au VAE pour tester et implementer une representation des molecules
+voir si API pour verifier la validite des molecules generes
 
 Mettre lien vers article
 mieux rediger read me
