@@ -1,3 +1,5 @@
 data/
 
 mol_gen/
+
+__pycache__/
