@@ -80,3 +80,5 @@ RDKit potentiel tokenizer
 # Laisser de coté 
 
 Méthode combinatoire y revenir plus tard
+
+# installer pytorch
