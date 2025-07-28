@@ -67,6 +67,9 @@ representation numerique fait intuitivement en listant tout les carateres il doi
 priorite au VAE pour tester et implementer une representation des molecules
 voir si API pour verifier la validite des molecules generes
 
+prendre une journee et recfhercher a fond les representation des smiles via des articles pour lencodage et 
+la tokenisation 
+
 Mettre lien vers article
 mieux rediger read me
 implementer plusieurs modele generatif
@@ -76,6 +79,15 @@ rechercher meilleur embedding
 
 regarder RDKit pour validite des molecules
 RDKit potentiel tokenizer
+
+
+pipeline pour semaine du 28/07/2025
+regarder representation smile et lire article
+regarder VAE et lire article plus rafraichier memoire VAE utilisation
+faire schéma explicatif pour mieux comprendre et pas hesiter à utiliser l outil de tensorflow tensorflow playground pour model
+regarder metrique d evaluation
+
+
 
 # Laisser de coté 
 
