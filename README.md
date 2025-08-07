@@ -17,7 +17,9 @@ py -3.11 -m venv mol_gen
 ### activer environnement
 
 In cmd.exe pas par default dans visual studio 
-mol_gen\Scripts\activate.bat
+ mol_gen\Scripts\activate.bat
+
+note l espace est important
 
 In PowerShell (attention il faut definir une strategie d execution python)
 mol_gen\Scripts\Activate.ps1
@@ -94,3 +96,11 @@ regarder metrique d evaluation
 Méthode combinatoire y revenir plus tard
 
 # installer pytorch
+
+
+# materiel
+
+https://developers.google.com/machine-learning/crash-course/embeddings?hl=fr
+explication embedding
+pas utile pour VAE ou autre modele projet juste les embeddings sur un vecteur dense plus adapter à certaine tache (Recherche à faire)
+
