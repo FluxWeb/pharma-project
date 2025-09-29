@@ -38,7 +38,8 @@ class VAE(torch.nn.Module):
         """
 
         #simple VAE for try and advancing
-        self.encoder = torch.nn.Sequential(torch.nn.Linear(64, 32),  # Assuming input length is 57
+        #pour entree doit avoir la taille du vocabulaire car le couche linear prends en entree les vecteurs de caractere individuellement 
+        self.encoder = torch.nn.Sequential(torch.nn.Linear(29, 32),  # Assuming input length is 57
                                              torch.nn.ReLU(),
                                              torch.nn.Linear(32, 16),
                                              torch.nn.ReLU(),
@@ -57,8 +58,7 @@ class VAE(torch.nn.Module):
                                              torch.nn.ReLU(),
                                              torch.nn.Linear(16, 32),
                                              torch.nn.ReLU(),
-                                             torch.nn.Linear(32, 64),
-                                             torch.nn.ReLU()
+                                             torch.nn.Linear(32, 29),
                                              )
 
     
@@ -81,17 +81,30 @@ class VAE(torch.nn.Module):
     def forward(self, x):
         z, mu, logvar = self.encode(x)
         x_recon = self.decode(z)
+        #print("shape x_recon forward before view ",x_recon.shape)
+        #x_recon = x_recon.view(-1, 64, 29)
+        #print("shape x_recon forward ",x_recon.shape)
         return x_recon, mu, logvar
     
     def vae_loss(self, x_recon, x, mu, logvar):
+        batch_size, seq_len, vocab_size = x_recon.size()
+
+        # Aplatir pour correspondre à l'input de F.cross_entropy
+        x_recon = x_recon.view(-1, vocab_size)  # (batch_size * seq_len, vocab_size)
+        x = x.view(-1)                          # (batch_size * seq_len)
+
+        # Calcul de la reconstruction loss
         recon_loss = torch.nn.functional.cross_entropy(x_recon, x, reduction='sum')
+
+        # Calcul de la divergence KL
         kl_div = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+
         return recon_loss + kl_div
     
 
 # Créer le vocabulaire
 def build_vocab(smiles_list):
-    charset = set()
+    charset = set() #set car enleve les doublons
     for smiles in smiles_list:
         for char in smiles:
             charset.add(char)
@@ -111,6 +124,23 @@ def encode_smiles(smiles, max_len):
 def decode_smiles(indices):
     return ''.join([idx_to_char[i] for i in indices if idx_to_char[i] not in ['<start>', '<pad>', '<end>']])
 
+def one_hot_encoded_smiles(smiles,max_len,char_to_idx):
+    """
+    Encode a SMILES string into a one-hot encoded vector.
+    
+    Parameters:
+    smiles (str): The SMILES string to encode.
+    
+    Returns:
+    np.ndarray: One-hot encoded vector of the SMILES string.
+    """
+    one_hot = np.zeros((max_len, len(char_to_idx)), dtype=np.float32)
+    
+    for i, char in enumerate(smiles):
+        if i < max_len:
+            one_hot[i, char] = 1.0
+            
+    return one_hot
 
 
 if __name__=="__main__":
@@ -122,7 +152,7 @@ if __name__=="__main__":
 
 
     #refaire les chemins plus tard pour appel dans rep parent
-    parent_path = os.path.abspath("../../data/moses/train.csv")  # Aller au dossier parent
+    parent_path = os.path.abspath("./data/moses/train.csv")  # Aller au dossier parent
 
     
     print(parent_path)
@@ -131,7 +161,10 @@ if __name__=="__main__":
     #print(torch.cuda.is_available())      # True si CUDA est détecté
     #print(torch.__version__)
     #print(torch.version.cuda)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device="cpu"
+    
     #print(torch.cuda.get_device_name(0))  # Affiche le nom de ton GPU
 
 
@@ -141,6 +174,29 @@ if __name__=="__main__":
 
     char_to_idx, idx_to_char = build_vocab(SMILES_list)
     
+
+
+    print("Vocabulaire construit avec", len(char_to_idx), "caractères.")
+    print("max idx:", max(char_to_idx.values()))
+    first_encoded_smile= encode_smiles(SMILES_list[0],64)
+    print("Exemple de SMILES encodé:",first_encoded_smile)
+    one_hot_first_smile=one_hot_encoded_smiles(first_encoded_smile,64,char_to_idx)
+    print("test one hot ", one_hot_first_smile)
+    print("shape one hot ", one_hot_first_smile.shape)
+
+    #tensor_one_hot_first_smile=torch.tensor(one_hot_first_smile)
+    #ajout de la dimension pour le format du batch
+    tensor_one_hot_first_smile=torch.tensor(one_hot_first_smile).unsqueeze(0)
+    print("shape one hot tensor ",tensor_one_hot_first_smile.shape)
+
+    model=VAE()
+    print(model)
+
+    output=model(tensor_one_hot_first_smile)
+    #print("sortie du model \n",output)
+    print("shape de l output: ",output[0].shape)
+
+    #exit()
     """
     #test pour verifier isomophisme du decodeur
     test_encode=moses_train["SMILES"].apply(lambda x: encode_smiles(x, max_len=57)).to_list()
@@ -161,6 +217,7 @@ if __name__=="__main__":
     max_len = moses_train["SMILES"].apply(lambda x: len(x)).max() + 2  # +2 for <start> and <end>
 
     encode_smiles_l= moses_train["SMILES"].apply(lambda x: encode_smiles(x, 64)).to_list()
+    encode_smiles_l=list(map( lambda x:one_hot_encoded_smiles(x,64,char_to_idx),encode_smiles_l))
     #print(encode_smiles_l[0:5])
     l_encoded_smiles = len(encode_smiles_l[0])
     for k in range(len(encode_smiles_l)):
@@ -170,12 +227,14 @@ if __name__=="__main__":
             print("Length of encoded SMILES:", len(encode_smiles_l[k]))
             print("Expected length:", l_encoded_smiles)
         
-    X_train = torch.tensor(encode_smiles_l, dtype=torch.float).to(device)
+    l_encoded_smiles=np.array(l_encoded_smiles)
+    X_train = torch.tensor(encode_smiles_l, dtype=torch.float,device="cpu")
 
     # Test de l'encodeur
     vae = VAE()
     vae.to(device)
     
+    print("shape du train ",X_train[0].shape)
     test=vae(X_train[0])  # Ajouter des dimensions pour correspondre à l'entrée attendue
 
     print(test)

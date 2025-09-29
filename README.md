@@ -102,5 +102,4 @@ Méthode combinatoire y revenir plus tard
 
 https://developers.google.com/machine-learning/crash-course/embeddings?hl=fr
 explication embedding
-pas utile pour VAE ou autre modele projet juste les embeddings sur un vecteur dense plus adapter à certaine tache (Recherche à faire)
-
+chemberta represente chaque token sur un vecteur 1x768 
