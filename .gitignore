@@ -3,3 +3,5 @@ data/
 mol_gen/
 
 __pycache__/
+
+generate_folder.sh
