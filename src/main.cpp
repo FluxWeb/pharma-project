@@ -41,7 +41,11 @@ int main(int argc, char **argv) {
     QProcess *process = new QProcess(&window);
 
     // Liste les fichiers .py dans le dossier parent
-    std::vector<std::string>* test_list_file = getPythonScript("../");
+    std::vector<std::string>* test_list_file = getPythonScript("./scripts/");
+
+    for (const std::string& v : *test_list_file) {
+        std::cout << v << std::endl;
+    }
 
     for (const std::string &file : *test_list_file) {
         combo->addItem(QString::fromStdString(file));
@@ -68,7 +72,8 @@ int main(int argc, char **argv) {
             return;
         }
 
-        QString scriptPath = "../" + scriptName;
+        //automatiser les parties du path ici
+        QString scriptPath = "./scripts/" + scriptName;
         outputBox->append("Lancement de : " + scriptPath);
 
         process->start("python3", QStringList() << scriptPath);
@@ -83,11 +88,16 @@ int main(int argc, char **argv) {
     return app.exec();
 }
 
+/*
+Partie fonction test dev avant amelioration projet arborescence
+*/
+
 std::vector<std::string>* getPythonScript(const std::string& path)
 {
     auto* results = new std::vector<std::string>();
 
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
+        std::cout<< entry << std::endl;
         if (entry.path().extension() == ".py") {
             results->push_back(entry.path().filename().string());
         }
